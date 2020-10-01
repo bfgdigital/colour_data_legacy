@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+    <!-- Title & Description-->
+    <title>Thank you for contributing!</title>
+    <meta name="description" content="Datascience Ishihara Project">
+
+    <!-- Necessary Head Scripts -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5KLXJDJT8V"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-5KLXJDJT8V');
+    </script>
+    <!-- End Google Site Tag -->
+
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-KGRRJFT');</script>
+    <!-- End Google Tag Manager -->
+
+    <!-- JS, Popper.js, and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+</head>
+
+<body class="container p-4 ">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KGRRJFT" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <div class="w-80">
+        <div class="row col-12 p-4">
+            <h1 class="pt-30 m-30">Machine Learning with Ishihara</h1>
+            <div class="row col-12 p-4 justify-content-center mt-3">
+                <h4 class="lead">Thank you for your contribution.</h4>
+                <p><mark>Thank you for your contribution.</mark></p>
+                <p>
+                    Your results have been added to the growing pool of participation from people from around the globe,
+                    helping us to map out a more accurate view of human colour-vision recognition abilities.
+                </p>
+
+                <p>
+                    In the past, Ishihara tests have required and assumed a somewhat "strict" clinical setting for the
+                    tests to be administered accurately and the results are only useful for defining people as either
+                    colour-deficient or not to a pre-determined threshold. <strong>There's not much information
+                        gained.</strong></p>
+                <p>
+                    What we're trying to do is to better understand where people's colour vision changes and ultimately
+                    what impact or purpose it has.
+                </p>
+
+                <p class="lead">
+                    So, you've finished the responses (thanks again!)... what happens next?
+                </p>
+                <p>
+                    Well firstly, let me just reiterate, this project is totally anonymous, it wouldn't be as effective
+                    if it wasn't. Colour vision is known to have several genetic factors which might prove useful if we
+                    collected more info like your sex and age, however, for now at least we'd prefer to just keep it
+                    unknown and let the data talk for itself.
+                </p>
+                <p>
+                    With that out of the way...
+                    Firstly your results ("data") is fed into the lake of results and compared to every other set of
+                    results we have. From there, we use unsupervised machine learning models to group results and see
+                    who else has similar results to you.
+                </p>
+                <p>
+                    That process usually produces a chart like this one below, where you can clearly see by the lines
+                    that appear where some results show similarities to others.
+                </p>
+                <div class="mx-auto justify-content-center text-center">
+                    <img src="/static/img/user_correlations.png" alt="User responses correlations" style="width:85%" />
+                </div>
+                <p>
+                    The more red a square is, the more similar that result is to the corresponding user it aligns with.
+                    The bluer a square is, the less it corresponds. This just helps us to make basic groups.
+                </p>
+                <p>
+                    We have a few different machine learning models that we use, some we pre-determine how many groups
+                    we're expecting to appear, and some give us a number of how many groups are automatically found. We
+                    can compare these numbers to see if things appear to be working properly.
+                </p>
+                <p>Once we have basic groups, we assign a category label to that group and then we can move on to the
+                    next part of the process.
+                </p>
+                <p>
+                    Part two of the process is to use supervised machine learning models to classify each result in our
+                    data row by row, rather than per user. We use this information to "train" our machine learning
+                    models which make predicting groups more accurate. The result is pretty accurate, around 80% at the
+                    moment, and with the 20% that are not categorized according to what we anticipate, we inspect this
+                    data to see if a new group is emerging. As we collect more data, we expect to see new groups emerge.
+                    There are 8 known types of colour vision impairment, currently, we can identify 3.
+                </p>
+
+                <div class="mx-auto justify-content-center text-center">
+                    <img src="/static/img/classifications.png" alt="User responses correlations" style="width:95%" />
+                </div>
+
+                <p>
+                    Each new group identified adds to the overall picture of what human colour vision looks like.
+                </p>
+
+                <p>
+                    But, it doesn't end there...
+                    We want our test to get better over time, so the third and final part of the process is
+                    self-calibration.
+                </p>
+
+                <p>
+                    The colours used in the test are actually a little bit different each time from a degree of
+                    randomness used in the image generator. Sometimes the colours are a little more blue, red or green,
+                    some times a bit more vibrant, sometimes a bit flatter. This means that as the results pile in, we
+                    start to see results that are inherently 'vague'.
+                </p>
+                <div class="mx-auto justify-content-center text-center">
+                    <img src="/static/img/bluey1.png" alt="Pallet variation 1" style="width:30%" />
+                    <img src="/static/img/bluey2.png" alt="Pallet variation 2" style="width:30%" />
+                    <img src="/static/img/bluey3.png" alt="Pallet variation 3" style="width:30%" />
+                </div>
+                <p>
+                    It's sometimes a hard idea to grasp, but by being a little bit random, our results can be more
+                    accurate overall. Each person that is doing the test has a slightly different screen, some may be in
+                    a dark room, some may have their screen dimmer than others, so by adding in some randomness, we can
+                    build a deliberately vague model where there are so many tiny variations in our results, we're still
+                    likely to get an accurate pattern overall.
+                </p>
+                <div class="mx-auto justify-content-center text-center">
+                    <img src="/static/img/colours1.png" alt="User responses 3d space 1" style="width:45%" />
+                    <img src="/static/img/colours2.png" alt="User responses 3d space 2" style="width:45%" />
+                </div>
+                <p>
+                    We then filter down to the results for particular occurrences, shave off any outliers (again using
+                    machine learning) and pick the most significant responses and use those as the basis for the
+                    fundamental colours the next time around.
+                </p>
+                <p>
+                    What this means is that the test is constantly optimising, pallet by pallet, user by user, response
+                    by response.
+                </p>
+                <p>
+                    Eventually, we'll keep working on this project so that it can start to display live results and
+                    offer
+                    immediate feedback, as well as more variations on responses and colours but for now we're trying to
+                    ensure that the system accurately records and classifies information.
+                </p>
+
+                <p class="lead">Thanks again for being part of it all.<br>
+                    Means a lot to us.</p>
+            </div>
+        </div>
+</body>
+</html>
