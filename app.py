@@ -17,6 +17,8 @@ import random
 import sys
 from datetime import datetime
 import os
+import dotenv
+dotenv.load_dotenv()
 
 import numpy as np
 import pandas as pd
@@ -62,20 +64,19 @@ except ImportError:
 
 app = Flask(__name__,instance_relative_config=False)
 # Config
-KEY=os.environ.get('SECRET_KEY')
-app.config['SECRET_KEY']=KEY
-app.config['FLASK_APP']='wsgi.py'
-app.config['DEBUG']=False
-app.config['ASSETS_DEBUG']=False
-app.config['COMPRESSOR_DEBUG']=False
-# app.config['EXPLAIN_TEMPLATE_LOADING']=True
-app.config['STATIC_FOLDER']='static'
-app.config['TEMPLATES_FOLDER']='templates'
-app.config['SEND_FILE_MAX_AGE_DEFAULT']=1 # To ensure new image loads
+KEY = os.environ.get('SECRET_KEY')
+app.config['SECRET_KEY'] = KEY
+app.config['FLASK_APP'] = 'wsgi.py'
+app.config['DEBUG'] = False
+app.config['ASSETS_DEBUG'] = False
+app.config['COMPRESSOR_DEBUG'] = False
+app.config['STATIC_FOLDER'] = 'static'
+app.config['TEMPLATES_FOLDER'] = 'templates'
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 1 # To ensure new image loads
 
-#SQL Connection
+# SQL Connection
 HEROKU_POSTGRESQL = os.environ.get('HEROKU_POSTGRESQL_PURPLE_URL')
-engine = create_engine(str(HEROKU_POSTGRESQL))
+engine = create_engine(HEROKU_POSTGRESQL)
 
 ##################################
 # Route = /
@@ -93,8 +94,6 @@ def main():
     
     # Display Thank You page after 100 attempts.
     counter = image_data['counter']
-    session['username'] = image_data['user']
-    session['counter'] = image_data['counter']
     
     if image_data["counter"] >= 101:
         url = 'thankyou.html'
@@ -107,9 +106,12 @@ def main():
     if flask.request.method == 'POST':
         inputs = flask.request.form
         recorded_result = inputs['submit']
-        answer(recorded_result)
         dummytime = datetime.now().strftime("%S")
         temp_img_url = '/static/temp.png?dummy=' + str(dummytime) # display new image.
+        answer(recorded_result)
+        session['username'] = image_data['user']
+        session['counter'] = image_data['counter']
+        
     else:
         print('Not Post')
     
@@ -299,7 +301,7 @@ def answer(recorded_result):
     datafile.columns = image_data.keys()
     # datafile.to_csv('./CSV/dev_colourdata.csv', mode='a', header=False, index=False)
     # print(datafile)
-    datafile.to_sql('colour_data', engine, if_exists='append', index=False)
+    # datafile.to_sql('colour_data', engine, if_exists='append', index=False)
 
     # 4) Generate New Image
     generate_image() # Run Main Func
@@ -319,4 +321,8 @@ def add_header(response):
     return response
 
 if __name__ == '__main__':
+    # This is used when running locally only. When deploying to Google App
+    # Engine, a webserver process such as Gunicorn will serve the app. This
+    # can be configured by adding an `entrypoint` to app.yaml.
     app.run(host='127.0.0.1', port=5000, use_reloader=False)
+# [END gae_python38_app]
