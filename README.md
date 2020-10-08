@@ -1,5 +1,6 @@
 # ColourData.org
 
+## Introduction
 A self-calibrating CV testing environment.
 This anonymous data collection project is based on the Ishihara colour perception test invented by Shinobu Ishihara, a professor at the University of Tokyo, who first published his tests in 1917.
 
@@ -7,11 +8,31 @@ In the past, Ishihara tests have required and assumed a somewhat "strict" clinic
 
 What we're trying to do is to better understand where people's colour vision changes and ultimately what impact or purpose it has.
 
-It's "Self Calibrating" because the tests get more difficult over time as more users add data. The colour data and responses are fed into machine learning algorithms which find patterns and adjust the pallets to better test certain ranges of colour based recognition.
+It's "Self Calibrating" because the tests get more difficult over time as more users add data. The colour data and responses are fed into machine learning algorithms which find patterns and adjust the pallets to better test certain ranges of colour based recognition. More information bellow.
 
-Please ensure only one person is answering the questions per device at a time and try to answer questions as fast as possible, (100+ would be ideal) so that useful and reliable statistics can be processed and results displayed soon.
+## Data Dictionary
 
-Thanks so much for your time and help. ~ Ben
+####  temps.csv & (temps_multi.csv with multiple locations)
+| Field | Description |
+| :--- | :--- |
+| user | User, registerd in DB as secrets.token_urlsafe(4) |
+| correct | Response correct or not (0/1) |
+| recorded_result | The response submitted. Used to evaluate 'near miss' responses. |
+| mask_image | The image masked within the test plate. |
+| cb_type1 | Should be passed by Duranatope type users |
+| cb_type2 | Should be passed by Protanope type users |
+| ncb | Should be passed by non colour imapred users' |
+| datetime | Time for referenceing user or response image |
+| pallet_used | The base pallet used before adding random colour |
+| pallet_values | the values used including random variation |
+| ishihara_list | List of colours used as RGB |
+| COLORS_ON | Colours on the mask as RGB |
+| COLORS_OFF | Background colours not on the mask as RGB |
+| cluster_classification | Classification label from unserpervised learning models. |
+
+
+## Try it out!
+* [Live Version](https://colourdata.org)
 
 
 ## Part 1
@@ -55,9 +76,7 @@ randomness used in the image generator. Sometimes the colours are a little more 
 some times a bit more vibrant, sometimes a bit flatter. This means that as the results pile in, we
 start to see results that are inherently 'vague'.
 
-<img src="/static/img/bluey1.png" alt="Pallet variation 1" width="30%" />
-<img src="/static/img/bluey2.png" alt="Pallet variation 2" width="30%" />
-<img src="/static/img/bluey3.png" alt="Pallet variation 3" width="30%" />
+<img src="/static/img/bluey1.png" alt="Pallet variation 1" width="30%" /><img src="/static/img/bluey2.png" alt="Pallet variation 2" width="30%" /><img src="/static/img/bluey3.png" alt="Pallet variation 3" width="30%" />
 
 It's sometimes a hard idea to grasp, but by being a little bit random, our results can be more
 accurate overall. Each person that is doing the test has a slightly different screen, some may be in
@@ -65,8 +84,7 @@ a dark room, some may have their screen dimmer than others, so by adding in some
 build a deliberately vague model where there are so many tiny variations in our results, we're still
 likely to get an accurate pattern overall.
 
-<img src="/static/img/colours1.png" alt="User responses 3d space 1" width="45%" />
-<img src="/static/img/colours2.png" alt="User responses 3d space 2" width="45%" />
+<img src="/static/img/colours1.png" alt="User responses 3d space 1" width="45%" /><img src="/static/img/colours2.png" alt="User responses 3d space 2" width="45%" />
 
 We then filter down to the results for particular occurrences, shave off any outliers (again using
 machine learning) and pick the most significant responses and use those as the basis for the
