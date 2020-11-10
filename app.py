@@ -95,10 +95,15 @@ def main():
     # Display Thank You page after 100 attempts.
     counter = image_data['counter']
     
-    if image_data["counter"] >= 101:
+    if image_data["counter"] >= 31:
         url = 'thankyou.html'
     else:
         url = 'index.html'
+        
+    if 'user' in session:
+        session['user'] = image_data['user']  # reading and updating session data  
+    else:
+        session['user'] = USER
     
     # Response Capturing
     ##################################
@@ -108,29 +113,37 @@ def main():
         recorded_result = inputs['submit']
         dummytime = datetime.now().strftime("%S")
         temp_img_url = '/static/temp.png?dummy=' + str(dummytime) # display new image.
-        answer(recorded_result)
-        session['username'] = image_data['user']
-        session['counter'] = image_data['counter']
+        answer(recorded_result) # Answer Function
+        # session user here?
         
     else:
-        print('Not Post')
+        print('Response Capturing else')
     
     # Render Template
     return flask.render_template(url, counter = counter, temp_img_url = temp_img_url) 
 
 ##################################
+# Global Variables
+##################################
+
+USER = secrets.token_urlsafe(4) # User to store in the session.
+
+BACKGROUND = (255, 255, 255) # White background.
+
+TOTAL_CIRCLES = 700 # set to limit generation time.
+
+PALLET_SELECTED = 0 # Iterator for the pallet outside of the functions.
+
+##################################
 # Ishihara Data
 ##################################
 
-# open and read the pallets csv
-# this will become a second SQL Db down the line
-pallets_dictionary = pd.read_csv('./CSV/pallets_dictionary.csv', index_col=False)
-
 # Data dictionary pushed to SQL/CSV
 image_data = {
-    'user': secrets.token_urlsafe(4),
+    'user': USER,
     'counter' : 0,
     'correct': 0,
+    'near_miss' : 0,
     'recorded_result' : "",
     'mask_image' : 6,
     'cb_type1' : 0,
@@ -139,44 +152,52 @@ image_data = {
     'datetime' : 'New User',
     'random_spread' : 15,
     'pallet_used' : "",
-    'pallet_values' : [],
+    'baseline' : [],
     'ishihara_list' :[],
     'COLORS_ON' : [],
     'COLORS_OFF' : [],
 }
 
 ##################################
-# Global Variables
+# Pallets
 ##################################
 
-# Find somewhere to put these.
-# White background.
-BACKGROUND = (255, 255, 255)
-# set to limit generation time.
-TOTAL_CIRCLES = 700
+# Open and read the pallets csv
+# pallets_dictionary = pd.read_csv('./CSV/pallets_dictionary.csv', index_col=False)
+pallets_dictionary = pd.read_sql('colour_pallets', engine, index_col='pallet_name')
 
 ##################################
 # Randomisation of Colours
 ##################################
 
+# Each collumn is a new pallet
+def pallet_selector():
+    global PALLET_SELECTED
+    if PALLET_SELECTED > 16: # 16 pallets
+        PALLET_SELECTED = 0       
+    selected_pallet = pallets_dictionary.iloc[PALLET_SELECTED]
+    pallet_name = selected_pallet.name
+    PALLET_SELECTED += 1
+    return selected_pallet, pallet_name    
+
+
 # Selecting a pallet and randomizing.
 def pallet_randomiser():
-    [random_hex] = pallets_dictionary.sample(n=1).values.tolist()
-    random_set = random_hex[0]
-    image_data['ishihara_list'] = []  # WRITING TO IMAGE_DATA
-    for colour in random_hex[1:13]:
+    selected_pallet, pallet_name = pallet_selector()
+    image_data['ishihara_list'] = []  # reset the colours
+    for colour in selected_pallet[:12]:
         hex_colour = colour.lstrip('#')
-        converted_value = list(int(hex_colour[i:i+2], 16) for i in (0, 2, 4))
+        converted_value = list(int(hex_colour[i:i+2], 16) for i in (0, 2, 4)) # Hex conversion
         colour_randomised = [np.random.randint((max(0, channel - image_data['random_spread'])), (min(255, channel + image_data['random_spread']))) for channel in converted_value]
         image_data['ishihara_list'].append(tuple(colour_randomised))
 
-    image_data['COLORS_ON'] = [i  for i in image_data['ishihara_list'][0:6]] # WRITING TO IMAGE_DATA
-    image_data['COLORS_OFF'] = [i for i in image_data['ishihara_list'][6:12]] # WRITING TO IMAGE_DATA
-    image_data.update(pallet_used = random_set)  # WRITING TO IMAGE_DATA
-    image_data.update(pallet_values = random_hex[1:13])  # WRITING TO IMAGE_DATA
-    image_data.update(cb_type1 = random_hex[13])  # WRITING TO IMAGE_DATA
-    image_data.update(cb_type2 = random_hex[14])  # WRITING TO IMAGE_DATA
-    image_data.update(ncb = random_hex[15])  # WRITING TO IMAGE_DATA
+    image_data['COLORS_ON'] = [i  for i in image_data['ishihara_list'][0:6]] # Set the colours on the symbol
+    image_data['COLORS_OFF'] = [i for i in image_data['ishihara_list'][6:12]] # Set the background colours
+    image_data.update(pallet_used = pallet_name)  # update the pallet name
+    image_data.update(baseline = list(selected_pallet[:12]))  # (numpy) record baseline colours
+    image_data.update(cb_type1 = selected_pallet[12])
+    image_data.update(cb_type2 = selected_pallet[13])
+    image_data.update(ncb = selected_pallet[14])
 
 
 # Circle / Dot Functions
@@ -225,8 +246,7 @@ def circle_draw(draw_image, image, xyr_values3):
 ##################################                    
 
 def generate_image():
-    print("Running")
-
+    
     pallet_randomiser()
     masks = ["A","B","C","D","E","1","2","3","4","5","No Image"]
     random_mask = random.choice(masks)
@@ -285,25 +305,45 @@ def generate_image():
 ##################################
 
 def answer(recorded_result):
-
-    # 1) Correct Or Not
+    # 1) Update Response
     image_data.update(recorded_result = recorded_result)
+    # 2) Evaluate Response
     if image_data['recorded_result'] == image_data['mask_image']:
         image_data.update(correct = 1) # WRITING TO IMAGE_DATA
     else:
         image_data.update(correct = 0) # WRITING TO IMAGE_DATA
+    # 3) Evaluate near-misses
+    if image_data['mask_image'] == "E" and image_data['recorded_result'] == "B":
+        image_data.update(near_miss = 1)
+    elif image_data['mask_image'] == "D" and image_data['recorded_result'] == "B":
+        image_data.update(near_miss = 1)
+    elif image_data['mask_image'] == "3" and image_data['recorded_result'] == "B":
+        image_data.update(near_miss = 1)
+    elif image_data['mask_image'] == "C" and image_data['recorded_result'] == "5":
+        image_data.update(near_miss = 1)
+    else:
+        image_data.update(near_miss = 0)
 
-    # 2) Counter +1
+    # 4) Turn the Counter +1
     image_data["counter"] += 1 # WRITING TO IMAGE_DATA
 
-    # 3) Write to file
-    datafile = pd.DataFrame(image_data.values()).T
-    datafile.columns = image_data.keys()
-    # datafile.to_csv('./CSV/dev_colourdata.csv', mode='a', header=False, index=False)
-    # print(datafile)
-    # datafile.to_sql('colour_data', engine, if_exists='append', index=False)
+    # 4) Prepare Data for SQL
+    datafile = pd.DataFrame(image_data.values(), index=image_data.keys()).T
+    datafile[['counter','correct','near_miss','cb_type1','cb_type2','ncb','random_spread']] = datafile[['counter','correct','near_miss','cb_type1','cb_type2','ncb','random_spread']].astype(int)
+    datafile = datafile.drop(['COLORS_ON','COLORS_OFF'],axis=1)
+    user_result = datafile.drop(['baseline','datetime','ishihara_list','random_spread'],axis=1)
+    
+    # 5) Push Data
+    datafile.to_sql('colour_data', engine, if_exists='append', index=False) 
+    #     datafile.to_csv('./Notebooks/CSV/dev_colourdata.csv', header=False, index=False)
+    if str(session['user']) == str(user_result['user']):
+        user_result.to_sql('colour_results', engine, if_exists='replace', index=False) # need a good mechanism here, based on user existing.
+        # user_result.to_csv('./CSV/dev_colour_results.csv', mode='a', header=False, index=False)
+    else:
+        user_result.to_sql('colour_results', engine, if_exists='append', index=False)
+        # user_result.to_csv('./CSV/dev_colour_results.csv', mode='a', header=False, index=False)
 
-    # 4) Generate New Image
+    # 6) Generate New Image
     generate_image() # Run Main Func
 
 ##################################
