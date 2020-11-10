@@ -201,7 +201,8 @@ def pallet_randomiser():
 
 
 # Circle / Dot Functions
-##################################
+# Adapted from https://github.com/franciscouzo/ishihara_generator
+################################################################## 
 
 # max_diameter * 2.6 + min_diameter * 0.6
 def generate_circle(image_width, image_height, min_diameter, max_diameter):
@@ -242,8 +243,9 @@ def circle_draw(draw_image, image, xyr_values3):
                     outline=fill_color)
 
 
-# Image Generation Function
-##################################                    
+# Image Generation Function 
+# Adapted from https://github.com/franciscouzo/ishihara_generator
+##################################################################           
 
 def generate_image():
     
