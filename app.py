@@ -11,6 +11,9 @@ import sqlalchemy
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 
+# Redis
+import redis
+
 # app
 import math
 import random
@@ -66,9 +69,9 @@ app = Flask(__name__,instance_relative_config=False)
 KEY = os.environ.get('SECRET_KEY')
 app.config['SECRET_KEY'] = KEY
 app.config['FLASK_APP'] = 'wsgi.py'
-app.config['DEBUG'] = False
-app.config['ASSETS_DEBUG'] = False
-app.config['COMPRESSOR_DEBUG'] = False
+app.config['DEBUG'] = True
+app.config['ASSETS_DEBUG'] = True
+app.config['COMPRESSOR_DEBUG'] = True
 app.config['STATIC_FOLDER'] = 'static'
 app.config['TEMPLATES_FOLDER'] = 'templates'
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 1 # To ensure new image loads
@@ -76,6 +79,10 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 1 # To ensure new image loads
 # SQL Connection
 HEROKU_POSTGRESQL = os.environ.get('HEROKU_POSTGRESQL_PURPLE_URL')
 engine = create_engine(HEROKU_POSTGRESQL)
+
+# Redis Connection
+HEROKU_REDIS = os.getenv('REDIS_URL')
+redis = redis.from_url(HEROKU_REDIS)
 
 ##################################
 # Route = /
@@ -87,22 +94,17 @@ def main():
 
     # Front End Variables
     ##################################
-    
-    # Welcome Image
-    temp_img_url = '/static/welcome.png'
-    
+
+    temp_img_url = '/static/welcome.png' # Welcome Image
     # Display Thank You page after 100 attempts.
     counter = image_data['counter']
-    
     if image_data["counter"] >= 31:
         url = 'thankyou.html'
     else:
         url = 'index.html'
+    
+
         
-    if 'user' in session:
-        session['user'] = image_data['user']  # reading and updating session data  
-    else:
-        session['user'] = USER
     
     # Response Capturing
     ##################################
@@ -113,8 +115,16 @@ def main():
         dummytime = datetime.now().strftime("%S")
         temp_img_url = '/static/temp.png?dummy=' + str(dummytime) # display new image.
         answer(recorded_result) # Answer Function
-        # session user here?
-        
+        # Session from Redis
+        if 'user' in session:
+            print(f'{USER} in redis data')
+            image_data['user'] = redis.get('user')
+            
+        else:
+            print(f'{USER} not in redis data')
+            redis.set('user', USER)
+            redis.set('counter', 0)
+            
     else:
         print('Response Capturing else')
     
@@ -126,12 +136,12 @@ def main():
 ##################################
 
 USER = secrets.token_urlsafe(4) # User to store in the session.
-
+redis.set('user', USER) # Set Redis Token
+COUNTER = 0
+redis.set('counter', COUNTER) # Set Redis Token
+PALLET_SELECTED = 0 # User to store in the session. 
 BACKGROUND = (255, 255, 255) # White background.
-
 TOTAL_CIRCLES = 700 # set to limit generation time.
-
-PALLET_SELECTED = 0 # Iterator for the pallet outside of the functions.
 
 ##################################
 # Ishihara Data
@@ -140,17 +150,17 @@ PALLET_SELECTED = 0 # Iterator for the pallet outside of the functions.
 # Data dictionary pushed to SQL/CSV
 image_data = {
     'user': USER,
-    'counter' : 0,
+    'counter' : COUNTER,
     'correct': 0,
     'near_miss' : 0,
-    'recorded_result' : "new_user",
-    'mask_image' : 6,
+    'recorded_result' : "recorded_result",
+    'mask_image' : "mask_image",
     'cb_type1' : 0,
     'cb_type2' : 0,
     'ncb' : 0,
-    'datetime' : "new_user",
+    'datetime' : "datetime",
     'random_spread' : 15,
-    'pallet_used' : "new_user",
+    'pallet_used' : "pallet_used",
     'baseline' : [],
     'ishihara_list' :[],
     'COLORS_ON' : [],
@@ -162,8 +172,8 @@ image_data = {
 ##################################
 
 # Open and read the pallets csv
-# pallets_dictionary = pd.read_csv('./CSV/pallets_dictionary.csv', index_col=False)
-pallets_dictionary = pd.read_sql('colour_pallets', engine, index_col='pallet_name')
+pallets_dictionary = pd.read_csv('./static/pallets_dictionary.csv', index_col=False) # local
+# pallets_dictionary = pd.read_sql('colour_pallets', engine, index_col='pallet_name') # remote
 
 ##################################
 # Randomisation of Colours
@@ -179,7 +189,6 @@ def pallet_selector():
     PALLET_SELECTED += 1
     return selected_pallet, pallet_name    
 
-
 # Selecting a pallet and randomizing.
 def pallet_randomiser():
     selected_pallet, pallet_name = pallet_selector()
@@ -187,7 +196,9 @@ def pallet_randomiser():
     for colour in selected_pallet[:12]:
         hex_colour = colour.lstrip('#')
         converted_value = list(int(hex_colour[i:i+2], 16) for i in (0, 2, 4)) # Hex conversion
-        colour_randomised = [np.random.randint((max(0, channel - image_data['random_spread'])), (min(255, channel + image_data['random_spread']))) for channel in converted_value]
+        colour_randomised = [np.random.randint((max(0, channel - image_data['random_spread'])), \
+                                               (min(255, channel + image_data['random_spread'])) \
+                                              ) for channel in converted_value]
         image_data['ishihara_list'].append(tuple(colour_randomised))
 
     image_data['COLORS_ON'] = [i  for i in image_data['ishihara_list'][0:6]] # Set the colours on the symbol
@@ -214,7 +225,6 @@ def generate_circle(image_width, image_height, min_diameter, max_diameter):
 
     return x, y, radius
 
-
 def overlaps_motive(image, xyr_values):
     (x, y, r) = xyr_values
     points_x = [x, x, x, x-r, x+r, x-r*0.93, x-r*0.93, x+r*0.93, x+r*0.93]
@@ -226,12 +236,10 @@ def overlaps_motive(image, xyr_values):
 
     return False
 
-
 def circle_intersection(xyr_values1, xyr_values2):
     (x1, y1, r1) = xyr_values1
     (x2, y2, r2) = xyr_values2
     return (x2 - x1)**2 + (y2 - y1)**2 < (r2 + r1)**2
-
 
 def circle_draw(draw_image, image, xyr_values3):
     (x, y, r) = xyr_values3
@@ -240,7 +248,6 @@ def circle_draw(draw_image, image, xyr_values3):
     draw_image.ellipse((x - r, y - r, x + r, y + r),
                     fill=fill_color,
                     outline=fill_color)
-
 
 # Image Generation Function 
 # Adapted from https://github.com/franciscouzo/ishihara_generator
@@ -306,46 +313,45 @@ def generate_image():
 ##################################
 
 def answer(recorded_result):
-    # 1) Update Response
+    
+    ### 1) Update Response
     image_data.update(recorded_result = recorded_result)
-    # 2) Evaluate Response
+    ### 2) Evaluate Response
     if image_data['recorded_result'] == image_data['mask_image']:
         image_data.update(correct = 1) # WRITING TO IMAGE_DATA
     else:
         image_data.update(correct = 0) # WRITING TO IMAGE_DATA
-    # 3) Evaluate near-misses
-    if image_data['mask_image'] == "E" and image_data['recorded_result'] == "B":
-        image_data.update(near_miss = 1)
-    elif image_data['mask_image'] == "D" and image_data['recorded_result'] == "B":
-        image_data.update(near_miss = 1)
-    elif image_data['mask_image'] == "3" and image_data['recorded_result'] == "B":
-        image_data.update(near_miss = 1)
-    elif image_data['mask_image'] == "C" and image_data['recorded_result'] == "5":
+    
+    ### 3) Evaluate near-misses
+    near_miss_scenarios = [("E","B"),("D","B"),("3","B"),("C","5")]
+    near_miss_situation = (image_data['recorded_result'],image_data['mask_image'],)
+    if near_miss_situation in near_miss_scenarios or near_miss_situation[::-1] in near_miss_scenarios :
         image_data.update(near_miss = 1)
     else:
         image_data.update(near_miss = 0)
 
-    # 4) Turn the Counter +1
+    ### 4) Turn the Counter +1
     image_data["counter"] += 1 # WRITING TO IMAGE_DATA
+    redis.set('counter', image_data["counter"]) # Set Redis Token
 
-    # 4) Prepare Data for SQL
+    ### 5) Prepare Data for SQL
     datafile = pd.DataFrame(image_data.values(), index=image_data.keys()).T
-    datafile[['counter','correct','near_miss','cb_type1','cb_type2','ncb','random_spread']] = datafile[['counter','correct','near_miss','cb_type1','cb_type2','ncb','random_spread']].astype(int) # Get rid of numpy values for SQLAlchemy
+    datafile[['counter','correct','near_miss','cb_type1','cb_type2','ncb','random_spread']] = \
+    datafile[['counter','correct','near_miss','cb_type1','cb_type2','ncb','random_spread']].astype(int) # Get rid of numpy values for SQLAlchemy
     datafile = datafile.reindex(sorted(datafile.columns, reverse=True), axis=1) # Sort columns reverse aphabetically.
-    datafile = datafile.drop(['COLORS_ON','COLORS_OFF'],axis=1)
+    datafile = datafile.drop(['COLORS_ON','COLORS_OFF'],axis=1) # unnecessary to store in db
     user_result = datafile.drop(['baseline','datetime','ishihara_list','random_spread'],axis=1)
     
-    # 5) Push Data
+    ### 6) Push Data
+    if str(image_data['user']) == redis.get('user'):
+        action = 'append'
+    else:
+        action = 'replace'
+#     user_result.to_sql('colour_results', engine, if_exists=action, index=False) # need a good mechanism here, based on user 
 #     datafile.to_sql('colour_data', engine, if_exists='append', index=False) 
     datafile.to_csv('./Notebooks/CSV/dev_colourdata.csv', header=True, index=False)
-    if str(session['user']) == str(user_result['user']):
-#         user_result.to_sql('colour_results', engine, if_exists='replace', index=False) # need a good mechanism here, based on user existing.
-        user_result.to_csv('./Notebooks/CSV/dev_colour_results.csv', mode='a', header=True, index=False)
-    else:
-#         user_result.to_sql('colour_results', engine, if_exists='append', index=False)
-        user_result.to_csv('./Notebooks/CSV/dev_colour_results.csv', mode='a', header=True, index=False)
 
-    # 6) Generate New Image
+    ### 7) Generate New Image
     generate_image() # Run Main Func
 
 ##################################
@@ -353,7 +359,6 @@ def answer(recorded_result):
 ##################################
 
 # No caching at all for API endpoints.
-# Have disabled this previously, does not fix session issue.
 # Solves most image refresh issues, not for everyone.
 @app.after_request
 def add_header(response):
@@ -366,5 +371,7 @@ if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App
     # Engine, a webserver process such as Gunicorn will serve the app. This
     # can be configured by adding an `entrypoint` to app.yaml.
-    app.run(host='127.0.0.1', port=5000, use_reloader=False)
+    app.run(host='127.0.0.1', port=5000, use_reloader=True)
 # [END gae_python38_app]
+
+
