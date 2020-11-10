@@ -329,19 +329,20 @@ def answer(recorded_result):
 
     # 4) Prepare Data for SQL
     datafile = pd.DataFrame(image_data.values(), index=image_data.keys()).T
-    datafile[['counter','correct','near_miss','cb_type1','cb_type2','ncb','random_spread']] = datafile[['counter','correct','near_miss','cb_type1','cb_type2','ncb','random_spread']].astype(int)
+    datafile[['counter','correct','near_miss','cb_type1','cb_type2','ncb','random_spread']] = datafile[['counter','correct','near_miss','cb_type1','cb_type2','ncb','random_spread']].astype(int) # Get rid of numpy values for SQLAlchemy
+    datafile = datafile.reindex(sorted(datafile.columns, reverse=True), axis=1) # Sort columns reverse aphabetically.
     datafile = datafile.drop(['COLORS_ON','COLORS_OFF'],axis=1)
     user_result = datafile.drop(['baseline','datetime','ishihara_list','random_spread'],axis=1)
     
     # 5) Push Data
-    datafile.to_sql('colour_data', engine, if_exists='append', index=False) 
-    #     datafile.to_csv('./Notebooks/CSV/dev_colourdata.csv', header=False, index=False)
+#     datafile.to_sql('colour_data', engine, if_exists='append', index=False) 
+    datafile.to_csv('./Notebooks/CSV/dev_colourdata.csv', header=True, index=False)
     if str(session['user']) == str(user_result['user']):
-        user_result.to_sql('colour_results', engine, if_exists='replace', index=False) # need a good mechanism here, based on user existing.
-        # user_result.to_csv('./CSV/dev_colour_results.csv', mode='a', header=False, index=False)
+#         user_result.to_sql('colour_results', engine, if_exists='replace', index=False) # need a good mechanism here, based on user existing.
+        user_result.to_csv('./Notebooks/CSV/dev_colour_results.csv', mode='a', header=True, index=False)
     else:
-        user_result.to_sql('colour_results', engine, if_exists='append', index=False)
-        # user_result.to_csv('./CSV/dev_colour_results.csv', mode='a', header=False, index=False)
+#         user_result.to_sql('colour_results', engine, if_exists='append', index=False)
+        user_result.to_csv('./Notebooks/CSV/dev_colour_results.csv', mode='a', header=True, index=False)
 
     # 6) Generate New Image
     generate_image() # Run Main Func
