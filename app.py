@@ -52,9 +52,8 @@ except ImportError:
 # │   ├── /records
 # │   │   └── all recorded images...
 # │   ├── temp.png
+# │   ├── pallets_dictionary.csv
 # │   └── welcome.png
-# ├── /CSV
-# │   └── pallets_dictionary.csv
 # ├── app.py
 # └── requirements.txt
 
