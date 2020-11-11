@@ -1,2 +1,0 @@
-user,recorded_result,random_spread,pallet_used,near_miss,ncb,mask_image,ishihara_list,datetime,counter,correct,cb_type2,cb_type1,baseline
-U-GHiA,D,15,Plates_10-13,1,1,A,"[(180, 78, 48), (254, 161, 89), (243, 125, 78), (250, 116, 49), (190, 72, 30), (249, 110, 52), (244, 221, 97), (183, 169, 133), (134, 97, 63), (164, 156, 56), (103, 122, 135), (107, 106, 63)]",2020-11-11 00:11:58,4,0,0,0,"['#bc5325', '#f5a957', '#e87941', '#ff793b', '#c74e25', '#f9703b', '#f4d66f', '#bcb778', '#796b3b', '#b39e47', '#5c7579', '#796b3b']"
