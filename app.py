@@ -7,9 +7,8 @@ import flask
 from flask import Flask, send_file, request, render_template, make_response, session
 
 # SQL
-# import sqlalchemy
-# from sqlalchemy import create_engine
-# from flask_sqlalchemy import SQLAlchemy
+import sqlalchemy
+from sqlalchemy import create_engine
 
 # Redis
 import redis
@@ -71,7 +70,7 @@ app.config['SECRET_KEY'] = KEY
 app.config['FLASK_APP'] = 'wsgi.py'
 app.config['DEBUG'] = True
 app.config['ASSETS_DEBUG'] = True
-app.config['COMPRESSOR_DEBUG'] = True
+app.config['COMPRESSOR_DEBUG'] = False
 app.config['STATIC_FOLDER'] = 'static'
 app.config['TEMPLATES_FOLDER'] = 'templates'
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 1 # To ensure new image loads
@@ -83,6 +82,13 @@ engine = create_engine(HEROKU_POSTGRESQL)
 # Redis Connection
 HEROKU_REDIS = os.getenv('REDIS_URL')
 redis = redis.from_url(HEROKU_REDIS)
+# Set User for session
+USER = secrets.token_urlsafe(4) # User to store in the session.
+redis.set(str(USER), USER) # Set Redis Token
+# Set Counter for session
+COUNTER = 0
+counter_id = secrets.token_urlsafe(4)
+redis.set(str(counter_id), COUNTER) # Set Redis Token
 
 ##################################
 # Route = /
@@ -98,6 +104,7 @@ def main():
     ##################################    
     global USER
     global COUNTER
+    global counter_id
     
     # Post
     ##################################
@@ -116,45 +123,43 @@ def main():
         
         # Magic
         if COUNTER == 0:
-            generate_image()
+            generate_image() # generates the first image in the background to match reponse to image.
             COUNTER += 1
-            redis.set('counter', COUNTER) # Set Redis Token
-            redis.set('user', USER) # Set Redis Token
+            redis.set(str(counter_id), COUNTER) # Set Redis Token
         else:
             process_answer(recorded_result) # Answer Function
             write_data()
             generate_image()
             COUNTER += 1
-            redis.set('counter', COUNTER) # Set Redis Token
-            redis.set('user', USER) # Set Redis Token
+            redis.set(str(counter_id), COUNTER) # Set Redis Token
     else:
         print('Not Post')
     
     # Page Selector
     ##################################
-    enough_submissions = int(redis.get('counter'))
+    enough_submissions = int(redis.get(str(counter_id)))
     if enough_submissions > 30:
-        reset_app()
+        redis.flushdb()
+        USER = secrets.token_urlsafe(4) # User to store in the session.
+        redis.set(str(USER), USER) # Set Redis Token
+        COUNTER = 0
+        counter_id = secrets.token_urlsafe(4) # User to store in the session.
+        redis.set(str(counter_id), COUNTER) # Set Redis Token
         url = 'thankyou.html'
     else:
         url = 'index.html'
         
     # Render Template
     ##################################
-    return flask.render_template(url, counter = int(redis.get('counter')), temp_img_url = temp_img_url) 
+    return flask.render_template(url, counter = int(redis.get(str(counter_id))), temp_img_url = temp_img_url) 
 
 ##################################
 # Global Variables
 ##################################
-USER = secrets.token_urlsafe(4) # User to store in the session.
-redis.set('user', USER) # Set Redis Token
-COUNTER = 0
-redis.set('counter', COUNTER) # Set Redis Token
 PALLET_ITER = 0 # Start with pallet 0. 
 RANDOM_SPREAD = 15
 BACKGROUND = (255, 255, 255) # White background.
 TOTAL_CIRCLES = 700 # set to limit generation time.
-
 # Pallets
 PALLETS_DICT = pd.read_csv('./static/pallets_dictionary.csv', index_col=['pallet_name']) # local
 # PALLETS_DICT = pd.read_sql('colour_pallets', engine, index_col='pallet_name') # remote
@@ -315,8 +320,8 @@ def generate_image():
 def process_answer(recorded_result):
     global user_data
     user_data = {
-        'user': str(redis.get('user')),
-        'counter' : int(redis.get('counter')),
+        'user': str(redis.get(str(USER))),
+        'counter' : int(redis.get(str(counter_id))),
         'correct': 0,
         'near_miss' : 0,
         'recorded_result' : "recorded_result",
@@ -355,33 +360,22 @@ def final_cleaning():
     resultfile = resultfile.reindex(sorted(resultfile.columns, reverse=True), axis=1) # Sort columns reverse aphabetically.
     resultfile = resultfile.drop(['mask_path','COLORS_ON','COLORS_OFF'],axis=1) # drop unnecessary data
     user_result = resultfile.drop(['baseline','datetime','colour_list','random_spread'],axis=1) # drop unnecessary data
-    
     return resultfile, user_result
 
 # Push data to file/SLQ
 def write_data():
     resultfile, user_result = final_cleaning()
     # Push Data to file/sql
-    if str(user_data['user']) == str(redis.get('user')):
+    if str(user_data['user']) == str(redis.get(str(USER))):
         action = 'append'
     else:
         action = 'replace'
     # SQL
-#     user_result .to_sql('colour_results', engine, if_exists=action, index=False) # need a good mechanism here, based on user 
-#     resultfile.to_sql('colour_data', engine, if_exists='append', index=False) 
+#     user_result .to_sql('colour_results', engine, if_exists=action, index=False) 
+#     resultfile.to_sql('colour_data', engine, if_exists=action, index=False) 
     # Local
     user_result.to_csv('./Notebooks/CSV/local_colour_results.csv', mode='a', header=False, index=False)
     resultfile.to_csv('./Notebooks/CSV/local_colour_data.csv', mode='a', header=False, index=False)
-    
-def reset_app():
-    global USER
-    global COUNTER
-    redis.flushdb()
-    USER = secrets.token_urlsafe(4) # User to store in the session.
-    redis.set('user', USER) # Set Redis Token
-    COUNTER = 0
-    redis.set('counter', COUNTER) # Set Redis Token
-    pass
     
 ##################################
 # Image Refresh 
