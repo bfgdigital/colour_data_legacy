@@ -84,7 +84,7 @@ a dark room, some may have their screen dimmer than others, so by adding in some
 build a deliberately vague model where there are so many tiny variations in our results, we're still
 likely to get an accurate pattern overall.
 
-<img src="static/colours1.png" alt="User responses 3d space 1" width="45%" /><img src="static/colours2.png" alt="User responses 3d space 2" width="45%" />
+<img src="static/colours1.png" alt="User responses 3d space 1" width="40%" /><img src="static/colours2.png" alt="User responses 3d space 2" width="40%" />
 
 We then filter down to the results for particular occurrences, shave off any outliers (again using
 machine learning) and pick the most significant responses and use those as the basis for the
