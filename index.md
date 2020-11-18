@@ -41,7 +41,7 @@ Results ("data") is fed into the lake of results and compared to every other set
 That process usually produces a chart like this one below, where you can clearly see by the lines
 that appear where some results show similarities to others.
 
-<img src="/static/user_correlations.png" alt="User responses correlations" width="85%" />
+<img src="static/user_correlations.png" alt="User responses correlations" width="85%" />
 
 The more red a square is, the more similar that result is to the corresponding user it aligns with.
 The bluer a square is, the less it corresponds. This just helps us to make basic groups.
@@ -61,7 +61,7 @@ moment, and with the 20% that are not categorized according to what we anticipat
 data to see if a new group is emerging. As we collect more data, we expect to see new groups emerge.
 There are 8 known types of colour vision impairment, currently, we can identify 3.
 
-<img src="/static/classifications.png" alt="User responses correlations" style="width:95%" />
+<img src="static/classifications.png" alt="User responses correlations" style="width:95%" />
 
 Each new group identified adds to the overall picture of what human colour vision looks like.
 
@@ -76,7 +76,7 @@ randomness used in the image generator. Sometimes the colours are a little more 
 some times a bit more vibrant, sometimes a bit flatter. This means that as the results pile in, we
 start to see results that are inherently 'vague'.
 
-<img src="/static/bluey1.png" alt="Pallet variation 1" width="30%" /><img src="/static/bluey2.png" alt="Pallet variation 2" width="30%" /><img src="/static/bluey3.png" alt="Pallet variation 3" width="30%" />
+<img src="static/bluey1.png" alt="Pallet variation 1" width="30%" /><img src="static/bluey2.png" alt="Pallet variation 2" width="30%" /><img src="static/bluey3.png" alt="Pallet variation 3" width="30%" />
 
 It's sometimes a hard idea to grasp, but by being a little bit random, our results can be more
 accurate overall. Each person that is doing the test has a slightly different screen, some may be in
@@ -84,7 +84,7 @@ a dark room, some may have their screen dimmer than others, so by adding in some
 build a deliberately vague model where there are so many tiny variations in our results, we're still
 likely to get an accurate pattern overall.
 
-<img src="/static/colours1.png" alt="User responses 3d space 1" width="45%" /><img src="/static/colours2.png" alt="User responses 3d space 2" width="45%" />
+<img src="static/colours1.png" alt="User responses 3d space 1" width="45%" /><img src="static/colours2.png" alt="User responses 3d space 2" width="45%" />
 
 We then filter down to the results for particular occurrences, shave off any outliers (again using
 machine learning) and pick the most significant responses and use those as the basis for the
