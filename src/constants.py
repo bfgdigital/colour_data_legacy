@@ -1,0 +1,4 @@
+IMAGE_BACKGROUND_COLOUR = (255, 255, 255)  # White background.
+TOTAL_CIRCLES = 700  # set to limit generation time.
+PRODUCTION = 'PRODUCTION'
+DEVELOPMENT = 'DEVELOPMENT'

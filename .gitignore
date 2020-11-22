@@ -3,3 +3,6 @@
 .DS_Store
 scheduler.ipynb
 config.py
+__pycache__/
+local_colour_data.csv
+local_colour_results.csv
