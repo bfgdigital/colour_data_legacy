@@ -85,6 +85,7 @@ ensure that the system accurately records and classifies information.
 | :--- | :--- |
 | user | User, registerd in DB as secrets.token_urlsafe(4) |
 | correct | Response correct or not (0/1) |
+| near_miss | Incorrect but can partially see correctly eg: E instead of B (0/1) |
 | recorded_result | The response submitted. Used to evaluate 'near miss' responses. |
 | mask_image | The image masked within the test plate. |
 | cb_type1 | Should be passed by Duranatope type users |
@@ -92,10 +93,8 @@ ensure that the system accurately records and classifies information.
 | ncb | Should be passed by non colour imapred users' |
 | datetime | Time for referenceing user or response image |
 | pallet_used | The base pallet used before adding random colour |
-| pallet_values | the values used including random variation |
-| ishihara_list | List of colours used as RGB |
-| COLORS_ON | Colours on the mask as RGB |
-| COLORS_OFF | Background colours not on the mask as RGB |
+| baseline | the HEX values used including random variation. Used for tackling model drift |
+| colour_list | List of colours used as RGB |
 | cluster_classification | Classification label from unserpervised learning models. |
 
 
