@@ -255,9 +255,9 @@ def write_data(user_data, image_metadata):
     resultfile, user_result = sanitise_data(user_data, image_metadata)
     # Push Data to file/sql
     if str(user_data['user']) == session['user']:
-        action = 'append'
-    else:
         action = 'replace'
+    else:
+        action = 'append'
     
     if os.environ.get('ENVIRONMENT') == DEVELOPMENT:
         # Save to local csv
