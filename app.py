@@ -266,8 +266,8 @@ def write_data(user_data, image_metadata):
                         mode='a', header=False, index=False)
     else:
         # Save to SQL DB
-        user_result .to_sql('colour_results', db, if_exists=action, index=False)
-        resultfile.to_sql('colour_data', db, if_exists=action, index=False)
+        # user_result .to_sql('colour_results', db, if_exists=action, index=False)
+        resultfile.to_sql('colour_data', db, if_exists='append', index=False)
 
 
 if __name__ == '__main__':
