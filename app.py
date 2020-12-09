@@ -118,7 +118,7 @@ def homepage():
     # Page Selector
     ##################################
     enough_submissions = session['counter']
-    if enough_submissions > 30:
+    if enough_submissions > 35:
         session.clear()
         url = 'thankyou.html'
         return flask.render_template(url, temp_img_url=temp_img_url)
