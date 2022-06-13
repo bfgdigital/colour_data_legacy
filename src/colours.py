@@ -5,8 +5,6 @@ import numpy as np
 # Randomisation of Colours
 ##################################
 
-import redis
-
 from .utils import create_cache_connection
 
 PALLETS_DICT = pd.read_csv(
@@ -20,7 +18,7 @@ number_of_pallets = 16
 cache = create_cache_connection()
 
 def pallet_selector():
-    # TODO make this unique to each user. redis isn't the only option here.
+    # TODO make this unique to each user.
     current_iteration = cache.get('pallet_iteration')
     if not current_iteration:
         current_iteration = 0
@@ -37,7 +35,7 @@ def pallet_randomiser():
     selected_pallet, pallet_name = pallet_selector()  # 1,2
     randomised_pallet = []  # reset the colours
     for colour in selected_pallet[:12]:
-        hex_colour = colour.lstrip('#')
+        hex_colour = colour.lstrip('#')  # TODO: change all values from hex to RGB.
         converted_value = list(
             int(hex_colour[i:i+2], 16) for i in (0, 2, 4))  # Hex conversion
         colour_randomised = [np.random.randint((max(0, channel - RANDOM_SPREAD)),

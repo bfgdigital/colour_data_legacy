@@ -1,6 +1,5 @@
 import dotenv
 import os
-import redis 
 import secrets
 
 from flask.app import Flask
@@ -11,7 +10,7 @@ dotenv.load_dotenv()
 
 def create_app():
     app = Flask(__name__,instance_relative_config=False)
-    # Config
+    # Config: TODO: move into external dict.
     KEY = os.environ.get('SECRET_KEY')
     app.config['SECRET_KEY'] = KEY
     app.config['FLASK_APP'] = 'wsgi.py'
@@ -27,12 +26,6 @@ def create_db_connection():
     # SQL Connection
     HEROKU_POSTGRESQL = os.environ.get('HEROKU_POSTGRESQL_PURPLE_URL')
     return create_engine(HEROKU_POSTGRESQL)
-
-# TODO do we need redis anymore?
-def create_cache_connection():
-    # Redis Connection
-    HEROKU_REDIS = os.getenv('REDIS_URL')
-    return redis.from_url(HEROKU_REDIS)
 
 def get_or_create_user_id():
     if session.get('user') is None:
