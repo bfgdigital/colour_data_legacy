@@ -10,8 +10,8 @@ class ImageMetadata():
 
         self.mask_path = mask_path
         self.mask_image = random_mask
-        self.cb_type1 = selected_pallet[12]
-        self.cb_type2 = selected_pallet[13]
+        self.cb_type1 = selected_pallet[12]  # TODO: Ensure this is consistent.
+        self.cb_type2 = selected_pallet[13]  # TODO: Ensure this is consistent.
         self.ncb = selected_pallet[14]
         self.datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.random_spread = RANDOM_SPREAD
