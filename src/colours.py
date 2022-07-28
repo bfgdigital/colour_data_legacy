@@ -5,8 +5,6 @@ import numpy as np
 # Randomisation of Colours
 ##################################
 
-from .utils import create_cache_connection
-
 PALLETS_DICT = pd.read_csv(
     './static/pallets_dictionary.csv', index_col=['pallet_name'])  # local
 RANDOM_SPREAD = 15
@@ -14,8 +12,6 @@ RANDOM_SPREAD = 15
 NUMBER_OF_PALLETS = 16
 
 # Each collumn is a new pallet
-
-cache = create_cache_connection()
 
 def pallet_selector():
     # TODO make this unique to each user.

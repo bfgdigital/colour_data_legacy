@@ -24,7 +24,7 @@ from datetime import datetime
 import os
 import dotenv
 
-from src.utils import create_app, create_db_connection, get_or_create_user_id, get_or_create_counter, create_cache_connection
+from src.utils import create_app, create_db_connection, get_or_create_user_id, get_or_create_counter
 from src.colours import RANDOM_SPREAD, pallet_randomiser
 from src.constants import IMAGE_BACKGROUND_COLOUR, TOTAL_CIRCLES, DEVELOPMENT, PRODUCTION
 from src.ishihara import overlaps_motive, circle_intersection, generate_circle
@@ -56,7 +56,6 @@ if os.environ.get('ENVIRONMENT') == DEVELOPMENT:
     app.config['ASSETS_DEBUG'] = True
     app.config['COMPRESSOR_DEBUG'] = False
 
-cache = create_cache_connection()
 db = create_db_connection()
 
 ##################################
