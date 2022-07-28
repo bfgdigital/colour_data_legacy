@@ -34,3 +34,6 @@ def get_or_create_user_id():
 def get_or_create_counter():
     if session.get('counter') is None:
         session['counter'] = 0
+        
+def create_cache_connection():
+    return None

@@ -11,7 +11,7 @@ PALLETS_DICT = pd.read_csv(
     './static/pallets_dictionary.csv', index_col=['pallet_name'])  # local
 RANDOM_SPREAD = 15
 
-number_of_pallets = 16
+NUMBER_OF_PALLETS = 16
 
 # Each collumn is a new pallet
 
@@ -25,7 +25,7 @@ def pallet_selector():
     selected_pallet = PALLETS_DICT.iloc[int(current_iteration)]
     pallet_name = selected_pallet.name
 
-    current_iteration = (int(current_iteration) % number_of_pallets) + 1
+    current_iteration = (int(current_iteration) % NUMBER_OF_PALLETS) + 1
     cache.set('pallet_iteration', current_iteration)
     return selected_pallet, pallet_name  # 1,2
 
