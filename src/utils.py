@@ -9,7 +9,7 @@ from sqlalchemy import create_engine
 dotenv.load_dotenv()
 
 def create_app():
-    app = Flask(__name__,instance_relative_config=False)
+    app = Flask(__name__, instance_relative_config=False)
     # Config: TODO: move into external dict.
     KEY = os.environ.get('SECRET_KEY')
     app.config['SECRET_KEY'] = KEY
