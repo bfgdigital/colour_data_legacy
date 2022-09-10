@@ -77,6 +77,7 @@ def homepage():
 
     get_or_create_user_id()
     get_or_create_counter()
+    # generate_image(image_metadata)  # Need to know if I pregenerate image here to align responses with image data.
 
     print(session)
 
