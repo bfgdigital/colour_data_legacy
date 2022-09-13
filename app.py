@@ -14,9 +14,6 @@ from flask import Response, Flask, send_file, request, render_template, make_res
 # SQL
 import sqlalchemy
 
-# Redis
-# import redis
-
 # app
 import math
 import random

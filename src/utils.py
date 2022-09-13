@@ -1,6 +1,5 @@
 import dotenv
 import os
-import redis 
 import secrets
 
 from flask.app import Flask
@@ -27,12 +26,6 @@ def create_db_connection():
     # SQL Connection
     HEROKU_POSTGRESQL = os.environ.get('HEROKU_POSTGRESQL_PURPLE_URL')
     return create_engine(HEROKU_POSTGRESQL)
-
-# TODO do we need redis anymore?
-def create_cache_connection():
-    # Redis Connection
-    HEROKU_REDIS = os.getenv('REDIS_URL')
-    return redis.from_url(HEROKU_REDIS)
 
 def get_or_create_user_id():
     if session.get('user') is None:

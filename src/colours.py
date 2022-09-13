@@ -5,8 +5,6 @@ import numpy as np
 # Randomisation of Colours
 ##################################
 
-import redis
-
 from .utils import create_cache_connection
 
 PALLETS_DICT = pd.read_csv(
